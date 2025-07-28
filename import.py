@@ -1,19 +1,19 @@
 import pandas as pd
 from sqlalchemy import create_engine
 
-# Parâmetros — ajuste conforme necessário
+# dados de acesso sql e origem dos arquivos
 excel_path = r"C:\Users\milenaaxs\Desktop\scriptimportcsvsql\BASE_COBRANÇA_2025 NOVA.xlsx"
-sheet_name = "BASE 2025"      # ou nome da aba correta
-mysql_url = "mysql+mysqlconnector://root:741598ma@localhost:3306/base_cobrança_corrigido"
+sheet_name = "BASE 2025"     # nome da aba correta no excel
+mysql_url = "mysql+mysqlconnector://root:senharoot@localhost:portatoot/base_cobrança_corrigido"
 tabela     = "base_cobranca_corrigido"
 
-# Carrega todo o Excel de uma vez
+# Carrega o excel
 df = pd.read_excel(excel_path, sheet_name=sheet_name, engine="openpyxl")
 
-# Remove linhas totalmente vazias
+# removendo linhas sem conteúdo
 df = df.dropna(how="all")
 
-# Padroniza nomes de coluna para MySQL
+# organizando padrão de colunas
 df.columns = (
     df.columns
       .astype(str)
@@ -23,11 +23,8 @@ df.columns = (
       .str[:64]
 )
 
-# (Opcional) converta tipos
-# df["Valor"] = df["Valor"].astype(float)
-# df["Data"]  = pd.to_datetime(df["Data"], dayfirst=True)
 
-# 1.3) Exporta para o MySQL (replace ou append)
+# Exporta para o MySQL 
 engine = create_engine(mysql_url)
 df.to_sql(name=tabela, con=engine, if_exists="replace", index=False)
 
